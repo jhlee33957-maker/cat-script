@@ -394,7 +394,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
   .blank{min-width:120px}
   .code{font-size:12.5px}
   .tpl .id{width:100%}
-  .exitdoor,.spike,.pigeon{display:none}
+  .spike,.pigeon{display:none}
+  .hero{padding-bottom:70px}
   .hero-bg video,.hero-vid{width:150%;max-width:none;max-height:55%;height:auto;top:28%;object-fit:cover;opacity:.4}
 }
 
@@ -1038,6 +1039,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
   if(!hero) return;
   const cat=hero.querySelector('.walker');
   const pigeon=hero.querySelector('.pigeon');
+  const heroSpec=document.getElementById('heroSpec');
   const door=hero.querySelector('.exitdoor');
   const spikes=[...hero.querySelectorAll('.spike')];
   if(!cat||!door) return;
@@ -1081,7 +1083,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
     last=now;
     const hr=hero.getBoundingClientRect();
     let jumpStart=hr.width*0.28, jumpEnd=jumpStart+240;
-    if(spikes.length && getComputedStyle(spikes[0]).display!=='none'){
+    const spikesOn=spikes.length && getComputedStyle(spikes[0]).display!=='none';
+    if(spikesOn){
       const rs=spikes.map(s=>s.getBoundingClientRect());
       const first=Math.min(...rs.map(r=>r.left))-hr.left;
       const lastR=Math.max(...rs.map(r=>r.right))-hr.left;
@@ -1090,7 +1093,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
     }
     const doorL=door.getBoundingClientRect().left-hr.left;
     const doorTarget=doorL-25.5;
-    const canJump=jumpEnd>jumpStart+20 && jumpStart<doorTarget-40;
+    const canJump=spikesOn && jumpEnd>jumpStart+20 && jumpStart<doorTarget-40;
 
     if(state==='approach' || state==='approachDoor'){
       x+=SPEED*dt;
@@ -1142,7 +1145,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
     if(pigeon){
       const t=now/1000;
       const px=Math.sin(t*1.15)*24+Math.sin(t*0.6)*8;
-      const py=175+Math.sin(t*1.55)*16+Math.cos(t*0.85)*8;
+      let base=175;
+      if(heroSpec){
+        const sb=heroSpec.getBoundingClientRect().bottom-hr.top;
+        const room=hr.height-80-sb-12-24;
+        base=Math.max(28,Math.min(175,room));
+      }
+      const py=base+Math.sin(t*1.55)*16+Math.cos(t*0.85)*8;
       const vx=1.15*24*Math.cos(t*1.15)+0.6*8*Math.cos(t*0.6);
       const fi=FLY[Math.floor(t/FLY_FT)%FLY.length];
       pigeon.style.backgroundPosition=(-fi*48)+'px 0';
